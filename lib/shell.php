@@ -42,6 +42,14 @@ abstract class Shell extends BaseIO {
         }
     }
 
+    public static function hasArg(string $name): bool {
+        return isset(static::$args[$name]);
+    }
+
+    public static function arg(string $name) {
+        return @static::$args[$name];
+    }
+
     public static abstract function main(): int;
     public static abstract function help(): void;
 

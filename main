@@ -12,8 +12,12 @@ class My extends Shell {
 
 
     public static function main(): int {
-        self::argDump();
+        if (self::hasArg("handshake") && self::hasArg("keysrc")) {
+            $key = file_get_contents(self::arg("keysrc"));
 
+
+            return 0;
+        }
         return 0;
     }
 }
