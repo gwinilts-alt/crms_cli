@@ -1,0 +1,21 @@
+#!php
+<?php
+
+require_once("lib/shell.php");
+
+
+class My extends Shell {
+
+    public static function help(): void {
+        self::writeln("There will be no help.");
+    }
+
+
+    public static function main(): int {
+        self::argDump();
+
+        return 0;
+    }
+}
+
+My::main();
