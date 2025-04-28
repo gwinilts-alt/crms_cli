@@ -23,6 +23,8 @@ abstract class Shell extends BaseIO {
                     } else {
                         static::$args[$match[1]] = array_shift($argv);
                     }
+                } else {
+                    static::$args[$match[1]] = true;
                 }
             } else {
                 static::$subject[] = $harg;

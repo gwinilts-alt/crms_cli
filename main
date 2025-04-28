@@ -2,7 +2,12 @@
 <?php
 
 require_once("lib/shell.php");
+require_once("lib/countrms/include.php");
 
+// required for qc
+
+require_once("qc_lib/lib/protect/sql-auth.php");
+require_once("qc_lib/lib/qc-data-types/const/qcdb.php");
 
 class My extends Shell {
 
@@ -10,14 +15,19 @@ class My extends Shell {
         self::writeln("There will be no help.");
     }
 
-
     public static function main(): int {
-        if (self::hasArg("handshake") && self::hasArg("keysrc")) {
-            $key = file_get_contents(self::arg("keysrc"));
-
-
+        if (self::hasArg("count")) {
+            return CountRMS::main();
+        }
+        if (self::hasArg("_vsi")) {
+            self::writeln(implode("\n", QCDB::colDump("StkItem")));
             return 0;
         }
+        if (self::hasArg("_vpp")) {
+            self::writeln(implode("\n", QCDB::colDump("ProdPattern")));
+        }
+        self::writeln("Nothing to do.");
+        self::argDump();
         return 0;
     }
 }
