@@ -26,6 +26,14 @@
     "CSCTL10" => "check"
  ]);
 
+ define("_PLACE", [
+    "most recent.",
+    "second most recent.",
+    "third",
+    "fourth",
+    "fifth most recent."
+ ]);
+
 
 class CountRMS extends Shell {
     public static function help(): void {
@@ -33,13 +41,15 @@ class CountRMS extends Shell {
         self::writeln("\t -o [path_to_output_file] *");
         self::writeln("\t -a | append to output file");
         self::writeln("\t -i [path_to_input_file] | to check for colisions   OR");
-        self::writeln("\t -is input file and output file are the same.");
+        self::writeln("\t -is input file and output file are the same. (implies -a)");
         self::writeln("\t -q [bool_check_qc_data] | default: true");
         self::writeln("\t -speak [some_command] | some command in YOUR path to speak prompts aloud");
         self::writeln("\t!! args with *: required");
         self::writeln("\t!! args with | optional");
         self::writeln("\t -q true [etc] OR -q (omitted):");
-        self::writeln("\t Control codes will be read through QCCheck DB. Barcodes will be checked to exist in QCCheck");
+        self::writeln("\t Control codes can be read through QCCheck DB. Barcodes will be checked to exist in QCCheck");
+        self::writeln("\t -q false");
+        self::writeln("\t if you don't use QCCheck, will not attempt to use it at all.");
     }
 
     private static $in = null;
@@ -86,13 +96,15 @@ class CountRMS extends Shell {
             } else if ($action == "last") {
                 if (sizeof(self::$history) > 0) {
                     $last = self::$history[sizeof(self::$history) - 1];
-                    self::say("last was " . $last[0] . " by " . $last[1]);
+                    self::say("last was " . implode(" ", str_split($last[0])) . " by " . $last[1]);
                 } else {
                     self::say("No recorded scan-history.");
                 }
             } else if ($action == "last5") {
-                foreach (self::$history as $k => $v) {
-                    self::say($v[0] . " by " . $v[1] . " " . $k . " ago.");
+                $o = 0;
+                for ($i = sizeof(self::$history) - 1; $i > -1; $i--) {
+                    self::say(_PLACE[$o++]);
+                    self::say(implode(" ", str_split(self::$history[$i][0])) . " by " . self::$history[$i][1]);
                 }
             } else if ($action == "check") {
                 self::say("Scanner called " . $who . " is receiving.");
@@ -119,8 +131,16 @@ class CountRMS extends Shell {
         $now = new DateTime();
         if (@self::$lookup[$what]) {
             $diff = $now->diff(self::$lookup[$what][0]);
-            self::say("dooplikit. " . implode(" ", str_split($what)) . " scanned " . $diff->i . " minutes ago by " . self::$lookup[$what][1], false);
-            self::writeln($what . " already scanned by " . $who . " approx " . $diff->i . " mins ago. \t\t " . implode(" ", str_split($what)));
+            $hdiff = "";
+            if ($diff->d > 0) $hdiff .= $diff->d . " days, ";
+            if ($diff->h > 0) $hdiff .= $diff->h . " hours, ";
+            if ($diff->i > 0) $hdiff .= $diff->i . " minutes, ";
+            if ($diff->s > 0) $hdiff .= $diff->s . " seconds ";
+
+
+
+            self::say("dooplikit. " . implode(" ", str_split($what)) . " scanned " . $hdiff . " ago by " . self::$lookup[$what][1], false);
+            self::writeln("Warn: " . $what . " already scanned by " . $who . " " . $hdiff . " ago. \t\t " . implode(" ", str_split($what)));
         } else {
             if (self::$hasQc) {
                 self::$qcLookup->execute([$what]);
