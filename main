@@ -2,7 +2,10 @@
 <?php
 
 require_once("lib/shell.php");
+require_once("lib/qcutil.php");
 require_once("lib/countrms/include.php");
+require_once("lib/checkrms/include.php");
+
 
 // required for qc
 
@@ -19,12 +22,52 @@ class My extends Shell {
         if (self::hasArg("count")) {
             return CountRMS::main();
         }
+        if (self::hasArg("check")) {
+            return CheckRMS::main();
+        }
         if (self::hasArg("_vsi")) {
             self::writeln(implode("\n", QCDB::colDump("StkItem")));
             return 0;
         }
         if (self::hasArg("_vpp")) {
             self::writeln(implode("\n", QCDB::colDump("ProdPattern")));
+            return 0;
+        }
+        if (self::hasArg("ppsearch")) {
+            $qx = self::arg("ppsearch");
+            $x = 0;
+            foreach (QC::ppMatch($qx) as $v) {
+                self::writeln($v);
+                $x ++;
+            }
+            self::writeln("Matched $x.");
+            return 0;
+        }
+        if (self::hasArg("sisearch")) {
+            $qx = self::arg("sisearch");
+            $x = 0;
+            foreach (QC::siMatch($qx) as $v) {
+                self::writeln($v);
+                $x++;
+            }
+            self::writeln("Matched $x.");
+            return 0;
+        }
+        if (self::hasArg("siinfo")) {
+            if (self::hasArg("g")) {
+                $group = self::arg("g");
+            } else {
+                $group = "%";
+            }
+            $qx = self::arg("siinfo");
+            foreach (QC::siInfo($qx, $group) as $v) {
+                $out = [];
+                foreach($v as $k => $v) {
+                    $out[] = $k . " => " . $v;
+                }
+                self::writeln(implode(", ", $out));
+            }
+            return 0;
         }
         self::writeln("Nothing to do.");
         self::argDump();

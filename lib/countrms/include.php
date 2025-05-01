@@ -139,7 +139,7 @@ class CountRMS extends Shell {
 
 
 
-            self::say("dooplikit. " . implode(" ", str_split($what)) . " scanned " . $hdiff . " ago by " . self::$lookup[$what][1], false);
+            self::say("$who dooplikit. " . implode(" ", str_split($what)) . " scanned " . $hdiff . " ago by " . self::$lookup[$what][1], false);
             self::writeln("Warn: " . $what . " already scanned by " . $who . " " . $hdiff . " ago. \t\t " . implode(" ", str_split($what)));
         } else {
             if (self::$hasQc) {
@@ -180,7 +180,7 @@ class CountRMS extends Shell {
                         $nick = $v;
                     }
                     $prefix = $k;
-                    $next = substr($next, 1);
+                    if ($prefix != "") $next = substr($next, 1);
                     break;
                 }
             }
@@ -278,9 +278,13 @@ class CountRMS extends Shell {
                     $in_pos++;
                     $d = explode("|", trim($next));
 
-                    if (sizeof($d) >= 2) {
+                    if (sizeof($d) >= 1) {
                         self::$lookup[$d[0]] = [];
-                        self::$lookup[$d[0]][] = DateTime::createFromFormat(_FILE_DATE, $d[1]);
+                        if (sizeof($d) > 1) {
+                            self::$lookup[$d[0]][] = DateTime::createFromFormat(_FILE_DATE, @$d[1]);
+                        } else {
+                            self::$lookup[$d[0]][] = new DateTime("now");
+                        }
                     } else {
                         self::writeln("!! Error in input on line ", $in_pos, ":");
                         self::writeln("\tExpected format: [asset_number]|[", _FILE_DATE, "]|[nickname]");
