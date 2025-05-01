@@ -1,6 +1,9 @@
 #!php
 <?php
 
+define("_SQL_DATE", "Y-m-d H:i:s");
+define("_FILE_DATE", "d/m/Y-H:i:s");
+
 require_once("lib/shell.php");
 require_once("lib/qcutil.php");
 require_once("lib/countrms/include.php");
@@ -51,6 +54,29 @@ class My extends Shell {
                 $x++;
             }
             self::writeln("Matched $x.");
+            return 0;
+        }
+        if (self::hasArg("rhinfo")) {
+            if (self::hasArg("g")) {
+                $g = self::arg("g");
+            } else {
+                $g = "%";
+            }
+
+            if (self::hasArg("after")) {
+                $after = DateTime::createFromFormat(_FILE_DATE, self::arg("after"));
+            } else {
+                $after = DateTime::createFromFormat(_FILE_DATE, "01/01/1997-07:00:00");
+            }
+
+            if (self::hasArg("before")) {
+                $before = DateTime::createFromFormat(_FILE_DATE, self::arg("before"));
+            } else {
+                $before = DateTime::createFromFormat(_FILE_DATE,"01/01/2030-17:00:00");
+            }
+
+            self::writeln(implode("\n", QC::rhList(self::arg("rhinfo"), $g, $after, $before, self::hasArg("date"), self::hasArg("code"))));
+
             return 0;
         }
         if (self::hasArg("siinfo")) {

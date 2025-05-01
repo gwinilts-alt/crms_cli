@@ -6,8 +6,6 @@
  * scanner 3: $
  */
 
- define("_SQL_DATE", "Y-m-d H:i:s");
- define("_FILE_DATE", "d/m/Y-H:i:s");
  define("_FALLBACK_NAME", [
     "*" => "Scanner 1",
     "+" => "Scanner 2",
