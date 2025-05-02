@@ -6,6 +6,7 @@ define("_FILE_DATE", "d/m/Y-H:i:s");
 
 require_once("lib/shell.php");
 require_once("lib/qcutil.php");
+require_once("lib/rms.php");
 require_once("lib/countrms/include.php");
 require_once("lib/checkrms/include.php");
 
@@ -93,6 +94,10 @@ class My extends Shell {
                 }
                 self::writeln(implode(", ", $out));
             }
+            return 0;
+        }
+        if (self::hasArg("_rmst")) {
+            var_dump(RMS::test());
             return 0;
         }
         self::writeln("Nothing to do.");
