@@ -76,7 +76,7 @@ class RMS {
     // the sync workflow would look like this:
     
     /**
-     * 1: get the Pp list from QCCheck
+     * 1: get the Pp list from QCCheck: QC::ppQuery($includeTemplate = false)
      * Foreach member try to get a list of assets from RMS
      * If there is a list:
      *  For each list item find out if there is a QC item with the same asset number
