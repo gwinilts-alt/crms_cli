@@ -101,6 +101,7 @@ class RMS {
 
 
       * Or there could be an RMS server that can perform up to some number of requests by looking after a queue
+      * It is possible to retrieve a list of item, counted or uncounted, using stock_levels
       * It would group
       */
 
