@@ -1,5 +1,7 @@
 <?php
 
+define("_RMS_DATE", "Y-m-dTG:i:sz");
+
 class RMS {
     private static $token = null;
     private static $sdbm = null;
@@ -25,6 +27,23 @@ class RMS {
         ];
     }
 
+    public static function productByNane($name) {
+        $q = self::get("https://api.current-rms.com/api/v1/products?page=1&per_page=20&filtermode=active&q[name_matches]=$name");
+
+        var_dump($q);
+
+        if ($q["info"]["http_code"] == 200) {
+            if (sizeof($q["response"]["products"]) > 0) return $q["response"]["products"][0];
+        }
+
+        return null;
+    }
+
+    public static function assetsByPID($id, $size = 100, $page = 1) {
+        $q = self::get("https://api.current-rms.com/api/v1/products/$id/stock_levels?page=$page&per_page=$size");
+        
+        var_dump($q);
+    }
 
     private static function post($url, $data = [], $headers = []) {
         $ch = curl_init($url);
@@ -41,13 +60,22 @@ class RMS {
     }
 
     public static function test() {
-        return self::getOpportunity("23");
-        /*return self::post("https://api.current-rms.com/api/v1/opportunities/23/quick_allocate", [
-            "stock_level_asset_number" => "IDE039",
-            "quantity" => 1,
-            "free_scan" => 1,
-            "mark_as_prepared" => 1
-        ]);*/
+        $cf5 = self::productByNane("CF016A1P005M");
+
+        self::assetsByPID($cf5["id"]);
+
+    }
+
+    public static function sync() {
+        $now = new DateTime();
+        // create a stock check
+        $q = self::post("https://api.current-rms.com/api/v1/stock_checks", [
+            "store_id" => 1,
+            "stock_check_at" => $now->format(_RMS_DATE),
+            "subject" => "generated stock check"
+        ]);
+
+        var_dump($q);
     }
 }
 

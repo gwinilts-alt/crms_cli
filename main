@@ -19,7 +19,9 @@ require_once("qc_lib/lib/qc-data-types/const/qcdb.php");
 class My extends Shell {
 
     public static function help(): void {
+        self::writeln("Usage: " . self::$instanceName, " -[count|check|ppsearch|sisearch|rhinfo|siinfo] -[other options]");
         self::writeln("There will be no help.");
+        self::writeln("IF there was it was undocumented.");
     }
 
     public static function main(): int {
@@ -99,6 +101,10 @@ class My extends Shell {
         if (self::hasArg("_rmst")) {
             var_dump(RMS::test());
             return 0;
+        }
+        if (self::hasArg("qsync")) {
+            RMS::productByNane("CF016A1P005M");
+            return RMS::sync();
         }
         self::writeln("Nothing to do.");
         self::argDump();
