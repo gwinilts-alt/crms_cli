@@ -1,8 +1,12 @@
 <?php
 
 class QC {
-    public static function ppMatch($what) {
-        $x = QCDB::prepare("SELECT Pp_Stock_Code FROM ProdPattern WHERE Pp_Stock_Code LIKE ?");
+    public static function ppMatch($what, $template = false) {
+        if ($template) {
+            $x = QCDB::prepare("SELECT Pp_Stock_Code FROM ProdPattern WHERE Pp_Stock_Code LIKE ?");
+        } else {
+            $x = QCDB::prepare("SELECT Pp_Stock_Code FROM ProdPattern WHERE Pp_Stock_Code LIKE ? AND Pp_Stock_Code NOT LIKE '[_]%'");
+        }
         $x->execute([$what]);
 
         return $x->fetchAll(PDO::FETCH_COLUMN);
