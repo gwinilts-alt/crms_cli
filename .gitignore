@@ -1,4 +1,5 @@
-protect/
-qc_lib/
+protect/*
+qc_lib/*
+data/*
 *.csv
-data/
+
