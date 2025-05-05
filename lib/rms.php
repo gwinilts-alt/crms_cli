@@ -82,6 +82,16 @@ class RMS {
      *  For each list item find out if there is a QC item with the same asset number
      *  if the Stock code is different, add to the alterations list
      *  If there is no correlation, add to the removals list
+     * 
+     * Work sleep loop:
+     *      fetch page of 100 assets
+     *      if http code 429 (rate limit) sleep for 1500 - rq_t ms
+     *      iterate
+     *      loop
+     * 
+     *      
+     *      
+     * 
      * If there is no list:
      *  Generate a new Product and NB the Stock_code
      *  Associate all further items with this code
