@@ -1,6 +1,13 @@
 <?php
 
 class QCRMS {
+  private static $create = null;
+  private static $update = null;
+  private static $delete = null;
+  private static $has = null;
+  public static function init() {
+    
+  }
 
     /**
      * Sync RMS to the current state of QCCheck
@@ -9,6 +16,7 @@ class QCRMS {
      * > 9 indicates a failure with QC
      * > 19 indicates a failure with RMS
      * 77 indicates there is no change
+     * 99 indicates an unhandled failure
      *
      *
      * Synchronizing RMS with QCCheck would involve deleting or ammending items that are in RMS to reflect the state of QCCheck
@@ -21,7 +29,7 @@ class QCRMS {
      * the sync workflow would look like this:
      *
      *
-     * 1: get the Pp list from QCCheck: QC::ppQuery($includeTemplate = false)
+     * 1: get the Pp list from QCCheck: QC::ppQuery($includeTemplate = false) *
      * Foreach member try to get a list of assets from RMS
      * If there is a list:
      *  For each list item find out if there is a QC item with the same asset number
@@ -60,6 +68,57 @@ class QCRMS {
       * It would group
       */
     public static function sync(): int {
+      self::$create = [];
+      self::$update = [];
+      self::$delete = [];
+      self::$has = [];
+      $prod = QC::ppList();
 
+      foreach ($prod as $product) {
+        self::prodSync($product);
+      }
+
+      Shell::dbg(sizeof(self::$update) . ", " . sizeof(self::$delete));
+
+
+      return 99;
+    }
+
+    /**
+     * 
+     * @param string $product
+     * @return void
+     * Do not write until the loop is finished
+     */
+    private static function prodSync(string $product) {
+      $rmsp = RMS::productByName($product);
+      $assets = RMS::allAssetsByPID($rmsp["id"]);
+      Shell::dbg(sizeof($assets), "Count for $product.");
+      /*
+      $t = sizeof($assets) % 64;
+
+      for ($i = 0; $i < sizeof($assets) - $t; $i+= 64) {
+
+      }*/
+
+      // nextPageOfAssets is reporting pages that don't eixst
+
+      // we are now rate limited by QC
+      // this will perform 2 * number_of_assets queries
+      // to avoid the bottleneck we need either: 
+      // preempt using a temp table
+      // perform block queries using IN(...)
+
+      foreach ($assets as $asset) {
+        if (QC::hasItem($asset["asset_number"])) {
+          if (QC::hasItemPP($asset["asset_number"], $product)) {
+            self::$has[] = $asset["asset_number"];
+          } else {
+            self::$update[$asset["id"]] = $product;
+          }
+        } else {
+          self::$delete[] = $asset["asset_number"];
+        }
+      }
     }
 }

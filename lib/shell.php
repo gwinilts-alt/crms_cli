@@ -5,13 +5,15 @@ abstract class Shell extends BaseIO {
     protected static $instanceName = "cmd";
     private static $args;
     private static $subject;
+    private static $_dbg = true;
 
-    public static function init($argv) {
-        static::$instanceName = array_shift($argv);
+    public final static function init($argv) {
+        self::$instanceName = array_shift($argv);
 
         $match = [];
-        static::$args = [];
-        static::$subject = [];
+        self::$args = [];
+        self::$subject = [];
+
 
         while (sizeof($argv) > 0) {
             $harg = array_shift($argv);
@@ -19,20 +21,20 @@ abstract class Shell extends BaseIO {
             if (preg_match("/[-]+(.*)/", $harg, $match)) {
                 if (sizeof($argv) > 0) {
                     if (substr($argv[0], 0, 1) === "-") {
-                        static::$args[$match[1]] = true;
+                        self::$args[$match[1]] = true;
                     } else {
-                        static::$args[$match[1]] = array_shift($argv);
+                        self::$args[$match[1]] = array_shift($argv);
                     }
                 } else {
-                    static::$args[$match[1]] = true;
+                    self::$args[$match[1]] = true;
                 }
             } else {
-                static::$subject[] = $harg;
+                self::$subject[] = $harg;
             }
         }
     }
 
-    public static function argDump() {
+    public final static function argDump() {
         self::_writeln("Instance: " . self::$instanceName);
         self::_writeln("Args: ");
         foreach (static::$args as $k => $v) {
@@ -44,11 +46,11 @@ abstract class Shell extends BaseIO {
         }
     }
 
-    public static function hasArg(string $name): bool {
+    public final static function hasArg(string $name): bool {
         return isset(static::$args[$name]);
     }
 
-    public static function arg(string $name) {
+    public final static function arg(string $name) {
         return @static::$args[$name];
     }
 
@@ -62,6 +64,23 @@ abstract class Shell extends BaseIO {
     protected static function write($msg) {
         self::_write($msg);
     }
+
+    public final static function fatal($msg, $where = "Unknown") {
+        self::_writeln("!!!! Fatal error in ", $where, ".");
+        self::_writeln("\t", $msg);
+        die(217);
+    }
+
+    public final static function dbg($msg, $where = "Unknown") {
+        if (self::$_dbg !== true) return;
+        self::_writeln("?? ", $where, ": ", $msg);
+    }
+
+    public final static function abort($msg) {
+        self::writeln("!!!!! ", $msg);
+        self::writeln("Aborted.");
+        die(217);
+    } 
 
 }
 

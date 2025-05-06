@@ -1,6 +1,10 @@
 <?php
 
 class QC {
+    
+    private static $lQCHasItem = null;
+    private static $lQCHasItemPP = null;
+
     public static function ppMatch($what, $template = false) {
         if ($template) {
             $x = QCDB::prepare("SELECT Pp_Stock_Code FROM ProdPattern WHERE Pp_Stock_Code LIKE ?");
@@ -10,6 +14,38 @@ class QC {
         $x->execute([$what]);
 
         return $x->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public static function hasItem(string $asset): bool {
+        self::$lQCHasItem->execute([$asset]);
+        return self::$lQCHasItem->fetch(PDO::FETCH_COLUMN) > 0;
+    }
+
+    public static function hasItemPP(string $asset, string $code): bool {
+        self::$lQCHasItemPP->execute([$asset, $code]);
+        return self::$lQCHasItemPP->fetch(PDO::FETCH_COLUMN) > 0;
+    }
+
+    public static function init() {
+        self::$lQCHasItem = QCDB::prepare("SELECT COUNT(Si_ID) FROM StkItem WHERE Si_Stock_Item LIKE ? AND Si_AssetStatus LIKE 'I'");
+        self::$lQCHasItemPP = QCDB::prepare("SELECT COUNT(Si_ID) FROM StkItem WHERE Si_Stock_Item LIKE ? AND Si_AssetStatus LIKE 'I' AND Si_Stock_Code = ?");
+    }
+
+    //1: get the Pp list from QCCheck: QC::ppQuery($includeTemplate = false)
+
+
+    /**
+     * Return a list of ProductPattern in the form [Pp_ID => Pp_]
+     * @param bool $includeTemplate templates are included if $includeTemplate is true (false ignores anything beginning with an underscore)
+     * @return array
+     */
+    public static function ppList(bool $includeTemplate = false) {
+        if ($includeTemplate === TRUE) {
+            $q = QCDB::getQuery("SELECT Pp_Stock_Code FROM ProdPattern");
+        } else {
+            $q = QCDB::getQuery("SELECT Pp_Stock_Code FROM ProdPattern WHERE Pp_Stock_Code NOT LIKE '[_]%'");
+        }
+        return $q->fetchAll(PDO::FETCH_COLUMN);
     }
 
     public static function siMatch($what) {
@@ -24,6 +60,13 @@ class QC {
         $x->execute([$what, $which]);
 
         return $x->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function siICount($which) {
+        $q = QCDB::prepare("SELECT COUNT(Si_ID) FROM StkItem WHERE Si_Stock_Code LIKE ? AND Si_AssetStatus LIKE 'I'");
+        $q->execute([$which]);
+
+        return $q->fetch(PDO::FETCH_COLUMN);
     }
 
     public static function rhList($what, $which, $after, $before, $date = false, $code = false) {
@@ -46,3 +89,5 @@ class QC {
         return $out;
     }
 }
+
+QC::init();
