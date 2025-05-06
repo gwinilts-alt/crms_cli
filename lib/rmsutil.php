@@ -173,8 +173,8 @@ class RMS {
             }
         } else {
             self::$pageTracker[$pid] = [
-                "last_page" => 0,
-                "list" => self::getPageOfAssets($pid, 0)
+                "last_page" => 1,
+                "list" => self::getPageOfAssets($pid, 1)
             ];
 
             return self::nextPageOfAssets($pid);
