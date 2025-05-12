@@ -4,17 +4,19 @@
 define("_SQL_DATE", "Y-m-d H:i:s");
 define("_FILE_DATE", "d/m/Y-H:i:s");
 
-require_once("lib/shell.php");
-require_once("lib/qcutil.php");
-require_once("lib/rms.php");
-require_once("lib/countrms/include.php");
-require_once("lib/checkrms/include.php");
-
 
 // required for qc
 
 require_once("qc_lib/lib/protect/sql-auth.php");
 require_once("qc_lib/lib/qc-data-types/const/qcdb.php");
+
+require_once("lib/shell.php");
+require_once("lib/qcutil.php");
+require_once("lib/rmsutil.php");
+require_once("lib/qcrms.php");
+require_once("lib/countrms/include.php");
+require_once("lib/checkrms/include.php");
+
 
 class My extends Shell {
 
@@ -34,6 +36,9 @@ class My extends Shell {
         if (self::hasArg("_vsi")) {
             self::writeln(implode("\n", QCDB::colDump("StkItem")));
             return 0;
+        }
+        if (self::hasArg("_vsic")) {
+            self::writeln(QC::siICount(self::arg("_vsic")));
         }
         if (self::hasArg("_vpp")) {
             self::writeln(implode("\n", QCDB::colDump("ProdPattern")));
@@ -103,8 +108,11 @@ class My extends Shell {
             return 0;
         }
         if (self::hasArg("qsync")) {
-            RMS::productByNane("CF016A1P005M");
-            return RMS::sync();
+            RMS::productByName("CF016A1P005M");
+            return QCRMS::sync();
+        }
+        if (self::hasArg("rcheck")) { // rate limit test
+            var_dump(sizeof(RMS::allAssetsByPid(RMS::productByName("CF016A1P005M")["id"])));
         }
         self::writeln("Nothing to do.");
         self::argDump();

@@ -64,6 +64,7 @@ class CountRMS extends Shell {
     private static $qcLookupPp = null;
     private static $running = true;
     private static $history = [];
+    private static $import = null;
 
     private static function ctlCode($who, $what, $prefix) {
         if ($action = @_FALLBACK_CODE[$what]) {
@@ -144,7 +145,13 @@ class CountRMS extends Shell {
                 self::$qcLookup->execute([$what]);
                 $data = self::$qcLookup->fetchAll(PDO::FETCH_ASSOC);
                 if (sizeof($data) == 1) {
-                    self::writeln($who, " scanned ", $data[0]["code"]);
+                    if (self::hasArg("import")) {
+                        if (self::arg("import") != $data[0]["ppp"]) {
+                            self::say("Expected " . self::arg("import") . " but $what was " . $data[0]["ppp"] . ".\t NOT COUNTED");
+                            return;
+                        }
+                    }
+                    self::writeln($who, " scanned ", $data[0]["code"], " :: ", $data[0]["ppp"]);
                     fwrite(self::$out, $data[0]["code"] . "|" . $now->format(_FILE_DATE) . "|" . $who . "\n");
                     self::$lookup[$what] = [$now, $who];
                     self::$history[] = [$what, $who];
@@ -157,7 +164,13 @@ class CountRMS extends Shell {
                     self::say(self::$count, false);
                     if (sizeof(self::$history) > 5) array_shift(self::$history);
                 } else {
-                    self::say(implode(" ", str_split($what)) . " could not be found in QCCheck.");
+                    if (self::$import) {
+                        QC::addSi($what, self::$import);
+                        self::say($what . " imported as " . self::$import["Pp_Stock_Code"]);
+                    } else {
+                        self::say(implode(" ", str_split($what)) . " could not be found in QCCheck.");
+                    }
+                    //
                 }
             }
         }
@@ -202,7 +215,7 @@ class CountRMS extends Shell {
             return 3;
         }
         self::$hasQc = true;
-        self::$qcLookup = QCDB::prepare("SELECT Si_Stock_Item AS code, Si_Stock_CodeID AS pp
+        self::$qcLookup = QCDB::prepare("SELECT Si_Stock_Item AS code, Si_Stock_CodeID AS pp, Si_Stock_Code AS ppp
         FROM StkItem WHERE Si_Stock_Item LIKE ?");
         self::$qcLookupNick = QCDB::prepare("SELECT Si_Stock_Item, Si_SerialNo, Si_Stock_Code FROM StkItem
         WHERE Si_Stock_Code LIKE 'TERASCAN' AND Si_Stock_Item LIKE 'CSCTL[0-9][0-9]' AND Si_Stock_Item LIKE ?");
@@ -250,6 +263,10 @@ class CountRMS extends Shell {
             } else {
                 self::$out = fopen(self::arg("o"), "w");
             }
+        }
+
+        if (self::hasArg("import")) {
+            self::$import = QC::getPP(self::arg("import"));
         }
 
         if (self::hasArg("i")) {
