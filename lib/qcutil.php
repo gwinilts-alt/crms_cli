@@ -16,6 +16,28 @@ class QC {
         return $x->fetchAll(PDO::FETCH_COLUMN);
     }
 
+    public static function getPP($what) {
+        $x = QCDB::prepare("SELECT * FROM ProdPattern WHERE Pp_Stock_Code LIKE ? AND Pp_Stock_Code NOT LIKE '[_]%'");
+
+        $x->execute([$what]);
+
+        return $x->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public static function addSi($barcode, $pp) {
+        $x = QCDB::prepare("INSERT INTO StkItem (
+            Si_Stock_Code,
+            Si_Stock_CodeID,
+            Si_AssetStatus,
+            Si_Create,
+            Si_Amend,
+            Si_Description,
+            Si_Stock_Item
+        ) VALUES (?, ?, 'I', GETDATE(), GETDATE(), ?, ?)");
+
+        $x->execute([$pp["Pp_Stock_Code"], $pp["Pp_ID"], $pp["Pp_Description"], $barcode]);
+    }
+
     public static function hasItem(string $asset): bool {
         self::$lQCHasItem->execute([$asset]);
         return self::$lQCHasItem->fetch(PDO::FETCH_COLUMN) > 0;
