@@ -91,6 +91,14 @@ class QC {
         return $q->fetch(PDO::FETCH_COLUMN);
     }
 
+    public static function results6m($what = "%") {
+        $then = new DateTime("- 6 months");
+        $st = QCDB::prepare("SELECT DISTINCT Rh_Stock_Item FROM ResultH WHERE Rh_Test_Date > ? AND Rh_Test_Result LIKE 'PASS' AND Rh_Stock_Code LIKE ?");
+        $st->execute([$then->format(_SQL_DATE), $what]);
+
+        return $st->fetchAll(PDO::FETCH_COLUMN);
+    }
+
     public static function rhList($what, $which, $after, $before, $date = false, $code = false) {
         $st = QCDB::prepare("SELECT DISTINCT Rh_Stock_Item, Rh_Stock_Code, Rh_Test_Date
             FROM ResultH

@@ -16,6 +16,7 @@ require_once("lib/rmsutil.php");
 require_once("lib/qcrms.php");
 require_once("lib/countrms/include.php");
 require_once("lib/checkrms/include.php");
+require_once("lib/sixfer/include.php");
 
 
 class My extends Shell {
@@ -63,6 +64,17 @@ class My extends Shell {
             }
             self::writeln("Matched $x.");
             return 0;
+        }
+        if (self::hasArg("rhq")) {
+            $rh = QC::results6m(self::arg("rhq"));
+
+            foreach ($rh as $item) {
+                self::write($item . "\r\n");
+            }
+            return 0;
+        }
+        if (self::hasArg("sixfer")) {
+            return SiXfer::main();
         }
         if (self::hasArg("rhinfo")) {
             if (self::hasArg("g")) {
