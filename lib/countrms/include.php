@@ -164,9 +164,12 @@ class CountRMS extends Shell {
     }
 
     private static function scanLoop(): int {
-        `stty -echo`;
+        //`stty -echo`;
         while (self::$running) {
             $next = trim(fgets(STDIN));
+            echo "$" . $next . "$";
+            if (strlen($next) == 0) return -1;
+            //die();
             $nick = "Unknown";
             $prefix = "";
 
