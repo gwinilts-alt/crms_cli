@@ -2,4 +2,4 @@ protect/*
 qc_lib/*
 data/*
 *.csv
-
+.DS_Store
