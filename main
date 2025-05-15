@@ -66,7 +66,7 @@ class My extends Shell {
             return 0;
         }
         if (self::hasArg("rhq")) {
-            $rh = QC::results6m(self::arg("rhq"));
+            $rh = QC::results1y(self::arg("rhq"));
 
             foreach ($rh as $item) {
                 self::write($item . "\r\n");
