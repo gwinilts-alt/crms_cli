@@ -7,6 +7,7 @@ class SiXfer extends Shell {
         // no count file
 
         // need a ignore.lst
+        // need to only match [0-9a-zA-Z]+
     }
 
     public static function main(): int {
@@ -21,7 +22,6 @@ class SiXfer extends Shell {
 
             if (self::hasArg("new") && ($new = fopen(self::arg("new"), 'w')) && self::hasArg("upd") && ($upd = fopen(self::arg("upd"), 'w'))) {
                 $st = QCDB::getQuery("SELECT * FROM StkItem WHERE Si_AssetStatus LIKE 'I' AND Si_Stock_Code NOT LIKE '[_]%' AND Si_Stock_Code NOT LIKE 'EP[1-9 -]%' AND Si_Stock_Code NOT LIKE '' AND Si_Stock_Code NOT LIKE 'TD%' AND Si_Stock_Code NOT LIKE '% %' AND Si_Stock_Code NOT LIKE 'TERASCAN'");
-
                 fwrite($upd, implode(",", $h) . "\r\n");
                 array_shift($h);
                 fwrite($new, implode(",", $h) . "\r\n");
