@@ -23,11 +23,25 @@ class My extends Shell {
 
     public static function help(): void {
         self::writeln("Usage: " . self::$instanceName, " -[count|check|ppsearch|sisearch|rhinfo|siinfo] -[other options]");
-        self::writeln("There will be no help.");
+        self::writeln("  -count");
+        self::writeln("\tenters stock check mode. This will count aloud as items are scanned with a scanner.\r\n\tTry -count with no other options for more info.");
+        self::writeln("  -check");
+        self::writeln("\tprocesses a file produced by -count along with a stock-check list from current [all-stock.csv] and produces a list of checked stock.\r\n\tTry -check with no options for more info.");
+        self::writeln("  -ppsearch [some string]");
+        self::writeln("\tsearches for and displays a list of product codes that match [some string]\r\n\te.g -ppsearch 'CF016A%' finds any product that starts with CF016A");
+        self::writeln("  -sisearch [some string]");
+        self::writeln("\tsearches for and displays a list of items whose barcodes match [some string]\r\n\te.g -sisearch '610___' OR -sisearch '610%' finds any item that starts with 610'");
+        self::writeln("  -rhq [some product code] displays a list of items whose product code matches [some product code] that have been tested within 1 year of today.");
+        self::writeln("  -sixfer\r\n\texports the state of QCCheck in the form of:\r\n\tupd.csv items that have been updated.\r\n\tnew.csv items that have not existed before.");
+        self::writeln("  -siinfo -g [product code] [item code]\r\n\tdisplays info about the first item matched by [item code] which is an item of [product code]");
         self::writeln("IF there was it was undocumented.");
     }
 
     public static function main(): int {
+        if (self::hasArg("help")) {
+            self::help();
+            return 0;
+        }
         if (self::hasArg("count")) {
             return CountRMS::main();
         }

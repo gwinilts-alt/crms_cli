@@ -48,6 +48,7 @@ class CountRMS extends Shell {
         self::writeln("\t Control codes can be read through QCCheck DB. Barcodes will be checked to exist in QCCheck");
         self::writeln("\t -q false");
         self::writeln("\t if you don't use QCCheck, will not attempt to use it at all.");
+        self::writeln("\t", self::$instanceName, " -help | shows this message.");
     }
 
     private static $in = null;
